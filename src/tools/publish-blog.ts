@@ -20,7 +20,8 @@ export const publishBlogSchema = {
   metaDescription: z.string().min(100).max(175).optional().describe('SEO meta description between 120 and 160 characters.'),
   focusKeyword: z.string().optional().describe('Primary search keyword for the article.'),
   canonicalUrl: z.string().optional().describe('Optional canonical URL override.'),
-  imagePrompt: z.string().optional().describe('Editorial prompt describing the ideal cover illustration for this article.'),
+  imagePrompt: z.string().optional().describe('Editorial prompt describing the ideal cover illustration for this article. Highly recommended to describe the specific subject (e.g., "Futuristic glowing AI neural network" for AI topics, or "Docker shipping container pods in neon cyberspace" for Docker topics).'),
+  imageUrl: z.string().url().optional().describe('Optional direct image URL to use as cover image. If provided, Strapi will download, optimize to WebP, and attach it to the post.'),
   headings: z.array(
     z.object({
       level: z.number().int().min(2).max(3),
@@ -29,7 +30,7 @@ export const publishBlogSchema = {
     })
   ).optional().describe('Structured table of contents outline.'),
   locale: z.string().default('en').describe('Language locale code (defaults to "en").'),
-  generateImage: z.boolean().default(false).describe('Whether to generate an editorial cover image if image generation is available.'),
+  generateImage: z.boolean().default(true).describe('Whether to generate an editorial cover image if image generation is available (defaults to true).'),
   idempotencyKey: z.string().optional().describe('Unique client-generated request ID to prevent duplicate publishing on retry.'),
 };
 
@@ -40,7 +41,7 @@ export const PUBLISH_BLOG_TOOL_DEFINITION = {
     'CRITICAL: Only call this tool when the user explicitly requests publication (e.g., "Publish this blog to my Strapi CMS"). ' +
     'Do NOT call this tool merely because a blog was generated or researched. ' +
     'The tool validates content (800+ words, H2/H3, 3+ FAQs, conclusion), verifies SEO metadata, checks for duplicates, ' +
-    'creates the Strapi 5 document, publishes it, revalidates the Next.js cache, and returns the live public URL.',
+    'creates the Strapi 5 document, attaches a topic-matched WebP cover image, publishes it, revalidates the Next.js cache, and returns the live public URL.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -67,13 +68,15 @@ export const PUBLISH_BLOG_TOOL_DEFINITION = {
       metaTitle: { type: 'string', description: 'SEO title (30-60 chars)' },
       metaDescription: { type: 'string', description: 'SEO description (120-160 chars)' },
       focusKeyword: { type: 'string', description: 'Primary keyword' },
-      imagePrompt: { type: 'string', description: 'Editorial cover image prompt' },
+      imagePrompt: { type: 'string', description: 'Editorial cover image prompt specifically describing the topic visual' },
+      imageUrl: { type: 'string', description: 'Optional direct cover image URL to download and attach' },
       locale: { type: 'string', default: 'en' },
-      generateImage: { type: 'boolean', default: false },
+      generateImage: { type: 'boolean', default: true },
       idempotencyKey: { type: 'string', description: 'Client request UUID' },
     },
     required: ['title', 'content', 'category', 'tags', 'faqs', 'conclusion'],
   },
+
 };
 
 export async function handlePublishBlog(client: StrapiClient, args: any) {

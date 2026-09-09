@@ -8,6 +8,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema, } from '@modelcontextpro
 import { StrapiClient } from './strapi-client.js';
 import { PUBLISH_BLOG_TOOL_DEFINITION, handlePublishBlog, } from './tools/publish-blog.js';
 import { CHECK_CONNECTION_TOOL_DEFINITION, CHECK_DUPLICATE_TOOL_DEFINITION, GET_CATEGORIES_TOOL_DEFINITION, handleCheckConnection, handleCheckDuplicate, handleGetCategories, } from './tools/health-tools.js';
+import { SEARCH_TOPIC_IMAGE_TOOL_DEFINITION, handleSearchTopicImage, } from './tools/image-tools.js';
 dotenv.config();
 const STRAPI_URL = process.env.STRAPI_URL || 'http://localhost:1337';
 const MCP_SHARED_SECRET = process.env.MCP_SHARED_SECRET || 'chronicle-mcp-shared-secret-key-2026';
@@ -31,6 +32,7 @@ function createMcpServer() {
         return {
             tools: [
                 PUBLISH_BLOG_TOOL_DEFINITION,
+                SEARCH_TOPIC_IMAGE_TOOL_DEFINITION,
                 CHECK_CONNECTION_TOOL_DEFINITION,
                 CHECK_DUPLICATE_TOOL_DEFINITION,
                 GET_CATEGORIES_TOOL_DEFINITION,
@@ -43,6 +45,8 @@ function createMcpServer() {
         switch (name) {
             case 'publish_blog_to_strapi':
                 return handlePublishBlog(strapiClient, args);
+            case 'search_topic_image':
+                return handleSearchTopicImage(args);
             case 'check_strapi_connection':
                 return handleCheckConnection(strapiClient);
             case 'check_blog_duplicate':
@@ -91,6 +95,7 @@ else {
                 result: {
                     tools: [
                         PUBLISH_BLOG_TOOL_DEFINITION,
+                        SEARCH_TOPIC_IMAGE_TOOL_DEFINITION,
                         CHECK_CONNECTION_TOOL_DEFINITION,
                         CHECK_DUPLICATE_TOOL_DEFINITION,
                         GET_CATEGORIES_TOOL_DEFINITION,
@@ -105,6 +110,9 @@ else {
                 let result;
                 if (toolName === 'publish_blog_to_strapi') {
                     result = await handlePublishBlog(strapiClient, toolArgs);
+                }
+                else if (toolName === 'search_topic_image') {
+                    result = await handleSearchTopicImage(toolArgs);
                 }
                 else if (toolName === 'check_strapi_connection') {
                     result = await handleCheckConnection(strapiClient);

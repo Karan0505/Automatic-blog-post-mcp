@@ -22,6 +22,10 @@ import {
   handleCheckDuplicate,
   handleGetCategories,
 } from './tools/health-tools.js';
+import {
+  SEARCH_TOPIC_IMAGE_TOOL_DEFINITION,
+  handleSearchTopicImage,
+} from './tools/image-tools.js';
 
 dotenv.config();
 
@@ -53,6 +57,7 @@ function createMcpServer(): Server {
     return {
       tools: [
         PUBLISH_BLOG_TOOL_DEFINITION,
+        SEARCH_TOPIC_IMAGE_TOOL_DEFINITION,
         CHECK_CONNECTION_TOOL_DEFINITION,
         CHECK_DUPLICATE_TOOL_DEFINITION,
         GET_CATEGORIES_TOOL_DEFINITION,
@@ -67,6 +72,8 @@ function createMcpServer(): Server {
     switch (name) {
       case 'publish_blog_to_strapi':
         return handlePublishBlog(strapiClient, args);
+      case 'search_topic_image':
+        return handleSearchTopicImage(args);
       case 'check_strapi_connection':
         return handleCheckConnection(strapiClient);
       case 'check_blog_duplicate':
@@ -121,6 +128,7 @@ if (isStdioMode) {
         result: {
           tools: [
             PUBLISH_BLOG_TOOL_DEFINITION,
+            SEARCH_TOPIC_IMAGE_TOOL_DEFINITION,
             CHECK_CONNECTION_TOOL_DEFINITION,
             CHECK_DUPLICATE_TOOL_DEFINITION,
             GET_CATEGORIES_TOOL_DEFINITION,
@@ -137,6 +145,8 @@ if (isStdioMode) {
         let result: any;
         if (toolName === 'publish_blog_to_strapi') {
           result = await handlePublishBlog(strapiClient, toolArgs);
+        } else if (toolName === 'search_topic_image') {
+          result = await handleSearchTopicImage(toolArgs);
         } else if (toolName === 'check_strapi_connection') {
           result = await handleCheckConnection(strapiClient);
         } else if (toolName === 'check_blog_duplicate') {

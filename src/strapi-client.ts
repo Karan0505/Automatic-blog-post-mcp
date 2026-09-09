@@ -15,6 +15,7 @@ export interface BlogPublishRequest {
   focusKeyword?: string;
   canonicalUrl?: string;
   imagePrompt?: string;
+  imageUrl?: string;
   headings?: Array<{ level: number; text: string; anchor?: string }>;
   locale?: string;
   generateImage?: boolean;
